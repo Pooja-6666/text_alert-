@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+
 def explain_action(state, stress, energy):
     if stress >= 4:
         return "High stress detected → grounding helps stabilize your mind."
@@ -29,7 +30,6 @@ def set_bg_color(state):
         }}
         </style>
     """, unsafe_allow_html=True)
-
 
 # 🎨 Default styling
 st.markdown("""
@@ -72,64 +72,63 @@ st.divider()
 if st.button("🔍 Analyze", use_container_width=True):
 
     with st.spinner("Analyzing your emotions..."):
-        response = requests.post(
-<<<<<<< HEAD
-            "https://text-alert.onrender.com/predict",
-=======
-            "http://127.0.0.1:8000/predict",
->>>>>>> 3b9f40bc8e80e43b8b45d06a4b349410e23d7258
-            json={
-                "text": text,
-                "stress": stress,
-                "energy": energy,
-                "sleep": sleep
-            }
-        )
+        try:
+            response = requests.post(
+                "https://text-alert.onrender.com/predict",
+                json={
+                    "text": text,
+                    "stress": stress,
+                    "energy": energy,
+                    "sleep": sleep
+                },
+                timeout=10
+            )
 
-    # ✅ FIXED INDENTATION
-    if response.status_code == 200:
-        result = response.json()
+            if response.status_code == 200:
+                result = response.json()
 
-        # 🎨 Apply background
-        set_bg_color(result["state"])
+                # 🎨 Apply background
+                set_bg_color(result["state"])
 
-        # 🎯 Emotion-based UI
-        if result["state"] == "happy":
-            st.balloons()
-            st.success("You're doing amazing today! 🚀")
+                # 🎯 Emotion-based UI
+                if result["state"] == "happy":
+                    st.balloons()
+                    st.success("You're doing amazing today! 🚀")
 
-        elif result["state"] == "stressed":
-            st.warning("Pause. Breathe. Reset. 🌬️")
+                elif result["state"] == "stressed":
+                    st.warning("Pause. Breathe. Reset. 🌬️")
 
-        elif result["state"] == "calm":
-            st.success("You're in a great state ✨")
+                elif result["state"] == "calm":
+                    st.success("You're in a great state ✨")
 
-        elif result["state"] == "sad":
-            st.info("It's okay to slow down 💙")
+                elif result["state"] == "sad":
+                    st.info("It's okay to slow down 💙")
 
-        # 📊 Results
-        st.success("Analysis Complete ✅")
+                # 📊 Results
+                st.success("Analysis Complete ✅")
+                st.subheader("🧠 Results")
 
-        st.subheader("🧠 Results")
-        
+                st.markdown(f"""
+                <div style='padding:25px; border-radius:15px; 
+                background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+                box-shadow: 0 0 15px rgba(0,0,0,0.5);'>
 
-        st.markdown(f"""
-        <div style='padding:25px; border-radius:15px; 
-        background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
-        box-shadow: 0 0 15px rgba(0,0,0,0.5);'>
+                <h3>🧠 Emotion: {result['state']}</h3>
+                <h3>🔥 Intensity: {result['intensity']}</h3>
+                <h3>🎯 Action: {result['action']}</h3>
+                <h3>⏰ When: {result['timing']}</h3>
 
-        <h3>🧠 Emotion: {result['state']}</h3>
-        <h3>🔥 Intensity: {result['intensity']}</h3>
-        <h3>🎯 Action: {result['action']}</h3>
-        <h3>⏰ When: {result['timing']}</h3>
+                </div>
+                """, unsafe_allow_html=True)
 
-        </div>
-        """, unsafe_allow_html=True)
-        st.progress(result["confidence"])
-        st.caption(f"Confidence: {round(result['confidence'] * 100, 2)}%")
+                st.progress(result["confidence"])
+                st.caption(f"Confidence: {round(result['confidence'] * 100, 2)}%")
 
-        st.info(f"💬 {result['message']}")
-        st.caption(f"🧠 Why: {explain_action(result['state'], stress, energy)}")
+                st.info(f"💬 {result['message']}")
+                st.caption(f"🧠 Why: {explain_action(result['state'], stress, energy)}")
 
-    else:
-        st.error("API not working ❌")
+            else:
+                st.error("Server error ❌")
+
+        except:
+            st.error("Backend is sleeping 😴 (Render cold start). Try again in a few seconds.")

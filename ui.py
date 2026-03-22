@@ -73,7 +73,11 @@ if st.button("🔍 Analyze", use_container_width=True):
 
     with st.spinner("Analyzing your emotions..."):
         response = requests.post(
+<<<<<<< HEAD
             "https://text-alert.onrender.com/predict",
+=======
+            "http://127.0.0.1:8000/predict",
+>>>>>>> 3b9f40bc8e80e43b8b45d06a4b349410e23d7258
             json={
                 "text": text,
                 "stress": stress,
